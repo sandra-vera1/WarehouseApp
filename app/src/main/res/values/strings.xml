@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">WarehouseApp</string>
+    <string name="app_name">Warehouse App</string>
+    <string name="warehouse_name_1">Main Warehouse</string>
+    <string name="province_1">Ontario</string>
+    <string name="location_1">123 Main St, Toronto</string>
+    <string name="warehouse_name_2">Backup Warehouse</string>
+    <string name="province_2">British Columbia</string>
+    <string name="location_2">456 Second Ave, Vancouver</string>
 </resources>
