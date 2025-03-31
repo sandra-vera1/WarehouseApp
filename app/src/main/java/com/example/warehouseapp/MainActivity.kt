@@ -4,41 +4,86 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.example.warehouseapp.ui.screens.CreateGoodsScreen
+import com.example.warehouseapp.ui.screens.CreateWarehouseScreen
+import com.example.warehouseapp.ui.screens.GoodsListScreen
+import com.example.warehouseapp.ui.screens.LoginScreen
+import com.example.warehouseapp.ui.screens.WarehousesListScreen
 import com.example.warehouseapp.ui.theme.WarehouseAppTheme
+import com.example.warehouseapp.utils.SessionManager
+import com.example.warehouseapp.viewmodels.GoodsViewModel
+import com.example.warehouseapp.viewmodels.UserViewModel
+import com.example.warehouseapp.viewmodels.WarehouseViewModel
 
 class MainActivity : ComponentActivity() {
+    private val userViewModel: UserViewModel by viewModels()
+    private val warehouseViewModel: WarehouseViewModel by viewModels()
+    private val goodsViewModel: GoodsViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+
+        val sessionManager = SessionManager(this)
+        val isLoggedIn = sessionManager.isLoggedIn()
+
+
         setContent {
-            WarehouseAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(modifier = Modifier.padding(innerPadding)){
-                        WarehousesListScreen()
-                    }
-                }
-            }
+            WarehouseApp(userViewModel, warehouseViewModel, goodsViewModel, isLoggedIn)
         }
     }
 }
 
-
-
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun WarehouseApp(
+    userViewModel: UserViewModel,
+    warehouseViewModel: WarehouseViewModel,
+    goodsViewModel: GoodsViewModel,
+    isLoggedIn: Boolean
+) {
+    val navController = rememberNavController()
     WarehouseAppTheme {
-        WarehousesListScreen()
+        NavHost(
+            navController = navController,
+            startDestination = if (isLoggedIn) "goods_list" else "login"
+        ) {
+            composable("login") {
+                LoginScreen(userViewModel, navController)
+            }
+            composable("warehouse_list") {
+                WarehousesListScreen(warehouseViewModel, goodsViewModel, navController)
+            }
+            composable("create_warehouse/{warehouseId}") { backStackEntry ->
+                val warehouseId =
+                    backStackEntry.arguments?.getString("warehouseId")?.toIntOrNull() ?: -1
+                CreateWarehouseScreen(
+                    warehouseViewModel,
+                    navController,
+                    warehouseId,
+                    onNavigateBack = { navController.popBackStack() })
+            }
+            composable("goods_list") {
+                GoodsListScreen(goodsViewModel, warehouseViewModel, navController)
+            }
+            composable("create_goods/{goodsId}/{isAllocationPage}") { backStackEntry ->
+                val goodsId = backStackEntry.arguments?.getString("goodsId")?.toIntOrNull() ?: -1
+                val isAllocationPage =
+                    backStackEntry.arguments?.getString("isAllocationPage")?.toBoolean() == true
+
+                CreateGoodsScreen(
+                    warehouseViewModel,
+                    goodsViewModel,
+                    navController,
+                    goodsId,
+                    isAllocationPage,
+                    onNavigateBack = { navController.popBackStack() })
+            }
+        }
     }
 }

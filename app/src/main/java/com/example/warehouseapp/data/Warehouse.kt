@@ -1,28 +1,26 @@
 package com.example.warehouseapp.data
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.IntegerRes
-import androidx.annotation.StringRes
-import com.example.warehouseapp.R
-
 data class Warehouse(
-    val id: Int,
-    @StringRes val name: Int,
-    @StringRes val province: Int,
-    @StringRes val locationAddress: Int
+    var id: Int,
+    var name: String,
+    var province: String,
+    var locationAddress: String,
+    var totalGoods: Int
 )
 
-val warehouses = listOf(
+val warehousesList = listOf(
     Warehouse(
-        id = 1,
-        name = R.string.warehouse_name_1,
-        province = R.string.province_1,
-        locationAddress = R.string.location_1
+        1,
+        "Main Warehouse",
+        "ON",
+        "123 Main Street",
+        720
     ),
     Warehouse(
-        id = 2,
-        name = R.string.warehouse_name_2,
-        province = R.string.province_2,
-        locationAddress = R.string.location_2
+        2,
+        "Backup Warehouse",
+        "BC",
+        "456 SecondAvenue",
+        1100
     )
 )
