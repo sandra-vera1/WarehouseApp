@@ -34,6 +34,7 @@ class WarehouseViewModel : ViewModel(){
     }
 
     fun deleteWarehouse(warehouseId: Int) : Boolean {
+        //TODO Remove WarehouseId from goods
         return _warehouses.removeAll { it.id == warehouseId }
     }
 

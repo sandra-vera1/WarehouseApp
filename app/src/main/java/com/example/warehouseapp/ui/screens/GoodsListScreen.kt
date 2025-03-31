@@ -43,6 +43,7 @@ import androidx.navigation.NavController
 import com.example.warehouseapp.data.Goods
 import com.example.warehouseapp.data.Warehouse
 import com.example.warehouseapp.ui.components.FooterBar
+import com.example.warehouseapp.utils.SessionManager
 import com.example.warehouseapp.viewmodels.GoodsViewModel
 import com.example.warehouseapp.viewmodels.WarehouseViewModel
 
@@ -57,11 +58,14 @@ fun GoodsListScreen(
     val createNewGoods: () -> Unit = {
         navController.navigate("create_goods/-1/false")
     }
+    val context = LocalContext.current
+    val sessionManager = SessionManager(context)
+    val role = sessionManager.getUserRole()
     val warehouses = warehouseViewModel.warehouses
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            WoofTopAppBar("Goods")
+            WoofTopAppBar("Goods", role)
         },
         bottomBar = {
             FooterBar(navController)
@@ -114,15 +118,13 @@ fun GoodsListScreen(
                     }
                 items(filteredGoods) { goods ->
                     val index = warehouses.indexOfFirst { it.id == goods.warehouseId }
-                    if (index != -1) {
-                        GoodsItem(
-                            viewModel,
-                            goods = goods,
-                            modifier = Modifier.padding(1.dp),
-                            navController,
-                            warehouses[index]
-                        )
-                    }
+                    GoodsItem(
+                        viewModel,
+                        goods = goods,
+                        modifier = Modifier.padding(1.dp),
+                        navController,
+                        if (index != -1) warehouses[index] else null
+                    )
                 }
             }
         }
@@ -135,14 +137,14 @@ private fun GoodsItem(
     goods: Goods,
     modifier: Modifier = Modifier,
     navController: NavController,
-    warehouse: Warehouse
+    warehouse: Warehouse?
 ) {
     val context = LocalContext.current
     val editGoods: (Int) -> Unit = { id ->
         navController.navigate("create_goods/$id/false")
     }
     val deleteGoods: (Int) -> Unit = {
-        if(viewModel.deleteGoods(goods, context)){
+        if (viewModel.deleteGoods(goods, context)) {
             val toast = Toast.makeText(context, "Goods deleted successfully", Toast.LENGTH_SHORT)
             toast.show()
         }
@@ -176,7 +178,7 @@ private fun GoodsItem(
                         horizontalArrangement = Arrangement.End
                     ) {
                         Text(
-                            text = warehouse.name,
+                            text = warehouse?.name ?: "-",
                             fontSize = 18.sp,
                         )
                     }

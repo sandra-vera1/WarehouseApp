@@ -23,6 +23,7 @@ import com.example.warehouseapp.moveImageToPermanentFolder
 import com.example.warehouseapp.saveDefaultSvgAsPng
 import com.example.warehouseapp.saveImageToTempFolder
 import com.example.warehouseapp.ui.components.FooterBar
+import com.example.warehouseapp.utils.SessionManager
 import com.example.warehouseapp.viewmodels.GoodsViewModel
 import com.example.warehouseapp.viewmodels.WarehouseViewModel
 import java.io.File
@@ -58,6 +59,9 @@ fun CreateGoodsScreen(
     val file = File(context.filesDir, goods.image)
     val imageFileName = if (file.exists()) goods.image else "default.png"
 
+    val sessionManager = SessionManager(context)
+    val role = sessionManager.getUserRole()
+
     var selectedImageUri by remember { mutableStateOf<Uri?>("${context.filesDir}/$imageFileName".toUri()) }
     deleteTempImage(context)
     saveDefaultSvgAsPng(context)
@@ -65,7 +69,8 @@ fun CreateGoodsScreen(
         topBar = {
             WoofTopAppBar(
                 if (isAllocationPage) "Allocation" else if (goodsId != -1) "Edit Goods" else "Create Goods",
-                onNavigateBack
+                onNavigateBack,
+                role
             )
         },
         bottomBar = {

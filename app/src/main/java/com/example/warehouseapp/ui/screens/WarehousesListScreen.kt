@@ -46,7 +46,7 @@ fun WarehousesListScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            WoofTopAppBar("Warehouses")
+            WoofTopAppBar("Warehouses", role)
         },
         bottomBar = {
             FooterBar(navController)

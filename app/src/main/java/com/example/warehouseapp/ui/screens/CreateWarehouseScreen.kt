@@ -11,10 +11,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import com.example.warehouseapp.data.Warehouse
 import com.example.warehouseapp.ui.components.FooterBar
+import com.example.warehouseapp.utils.SessionManager
 import com.example.warehouseapp.viewmodels.WarehouseViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,6 +33,9 @@ fun CreateWarehouseScreen(
         Warehouse(-1, "", "", "", 0)
     }
     val provinces = viewModel.getProvincesList()
+    val context = LocalContext.current
+    val sessionManager = SessionManager(context)
+    val role = sessionManager.getUserRole()
     var selectedProvince by remember { mutableStateOf(if (warehouse.province == "") provinces[0] else warehouse.province) }
     var name by remember { mutableStateOf(warehouse.name) }
     var locationAddress by remember { mutableStateOf(warehouse.locationAddress) }
@@ -38,7 +43,8 @@ fun CreateWarehouseScreen(
         topBar = {
             WoofTopAppBar(
                 if (warehouseId != -1) "Edit Warehouse" else "Create Warehouse",
-                onNavigateBack
+                onNavigateBack,
+                role
             )
         },
         bottomBar = {
