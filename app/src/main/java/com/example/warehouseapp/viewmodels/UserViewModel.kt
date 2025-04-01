@@ -1,21 +1,27 @@
 package com.example.warehouseapp.viewmodels
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
-import com.example.warehouseapp.data.User
-import com.example.warehouseapp.data.userList
+import androidx.lifecycle.ViewModelProvider
+import com.example.warehouseapp.data.models.User
+import com.example.warehouseapp.data.repositories.UserRepository
+import kotlinx.coroutines.flow.Flow
 
-class UserViewModel : ViewModel(){
-        private val _users = mutableStateListOf<User>()
-        val users: SnapshotStateList<User> get() = _users
+class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
 
-        init {
-            _users.addAll(userList)
-        }
+    fun getUser(userName: String, password: String): Flow<User?> {
+        return userRepository.getUserStream(userName, password)
+    }
 
-        fun getUser(userName: String, password: String) : User?{
-            val index = _users.indexOfFirst { it.userName == userName && it.password == password }
-            return if(index == -1) null else _users[index]
+
+    companion object {
+        fun Factory(repository: UserRepository) = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
+                    @Suppress("UNCHECKED_CAST")
+                    return UserViewModel(repository) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
         }
     }
+}

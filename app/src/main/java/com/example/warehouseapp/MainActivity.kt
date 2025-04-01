@@ -6,9 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.warehouseapp.data.AppDataContainer
 import com.example.warehouseapp.ui.screens.CreateGoodsScreen
 import com.example.warehouseapp.ui.screens.CreateWarehouseScreen
 import com.example.warehouseapp.ui.screens.GoodsListScreen
@@ -21,14 +23,26 @@ import com.example.warehouseapp.viewmodels.UserViewModel
 import com.example.warehouseapp.viewmodels.WarehouseViewModel
 
 class MainActivity : ComponentActivity() {
-    private val userViewModel: UserViewModel by viewModels()
-    private val warehouseViewModel: WarehouseViewModel by viewModels()
-    private val goodsViewModel: GoodsViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        val appContainer = AppDataContainer(this)
+        val warehouseViewModel = ViewModelProvider(
+            this,
+            WarehouseViewModel.Factory(appContainer.warehouseRepository)
+        )[WarehouseViewModel::class.java]
+
+        val goodsViewModel = ViewModelProvider(
+            this,
+            GoodsViewModel.Factory(appContainer.goodsRepository)
+        )[GoodsViewModel::class.java]
+
+        val userViewModel = ViewModelProvider(
+            this,
+            UserViewModel.Factory(appContainer.userRepository)
+        )[UserViewModel::class.java]
 
         val sessionManager = SessionManager(this)
         val isLoggedIn = sessionManager.isLoggedIn()
@@ -61,7 +75,7 @@ fun WarehouseApp(
             }
             composable("create_warehouse/{warehouseId}") { backStackEntry ->
                 val warehouseId =
-                    backStackEntry.arguments?.getString("warehouseId")?.toIntOrNull() ?: -1
+                    backStackEntry.arguments?.getString("warehouseId")?.toIntOrNull() ?: 0
                 CreateWarehouseScreen(
                     warehouseViewModel,
                     navController,
@@ -72,7 +86,7 @@ fun WarehouseApp(
                 GoodsListScreen(goodsViewModel, warehouseViewModel, navController)
             }
             composable("create_goods/{goodsId}/{isAllocationPage}") { backStackEntry ->
-                val goodsId = backStackEntry.arguments?.getString("goodsId")?.toIntOrNull() ?: -1
+                val goodsId = backStackEntry.arguments?.getString("goodsId")?.toIntOrNull() ?: 0
                 val isAllocationPage =
                     backStackEntry.arguments?.getString("isAllocationPage")?.toBoolean() == true
 

@@ -1,44 +1,54 @@
 package com.example.warehouseapp.viewmodels
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
-import com.example.warehouseapp.data.Warehouse
-import com.example.warehouseapp.data.warehousesList
+import com.example.warehouseapp.data.models.Warehouse
+import com.example.warehouseapp.data.repositories.WarehouseRepository
+import kotlinx.coroutines.flow.Flow
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
-class WarehouseViewModel : ViewModel(){
-    private val _warehouses = mutableStateListOf<Warehouse>()
-    val warehouses: SnapshotStateList<Warehouse> get() = _warehouses
+class WarehouseViewModel(private val warehouseRepository: WarehouseRepository) : ViewModel() {
 
-    init {
-        _warehouses.addAll(warehousesList)
-    }
+    val warehouses: Flow<List<Warehouse>> = warehouseRepository.getAllWarehousesStream()
 
-    fun getWarehouse(warehouseId: Int) : Warehouse{
-        val index = _warehouses.indexOfFirst { it.id == warehouseId }
-        return _warehouses[index];
+    fun getWarehouse(warehouseId: Int): Flow<Warehouse?> {
+        return warehouseRepository.getWarehouseStream(warehouseId)
     }
 
     fun addWarehouse(warehouse: Warehouse) {
-        val maxIdWarehouse = _warehouses.maxByOrNull { it.id }
-        val maxId = (maxIdWarehouse?.id ?: 0) + 1
-        warehouse.id = maxId
-        _warehouses.add(warehouse)
-    }
-
-    fun updateWarehouse(updatedWarehouse: Warehouse) {
-        val index = _warehouses.indexOfFirst { it.id == updatedWarehouse.id }
-        if (index != -1) {
-            _warehouses[index] = updatedWarehouse
+        viewModelScope.launch {
+            warehouseRepository.insertWarehouse(warehouse)
         }
     }
 
-    fun deleteWarehouse(warehouseId: Int) : Boolean {
-        //TODO Remove WarehouseId from goods
-        return _warehouses.removeAll { it.id == warehouseId }
+    fun updateWarehouse(updatedWarehouse: Warehouse) {
+        viewModelScope.launch {
+            warehouseRepository.updateWarehouse(updatedWarehouse)
+        }
+    }
+
+    fun deleteWarehouse(warehouseId: Int) {
+        viewModelScope.launch {
+            //TODO update warehouse id on goods
+            val warehouse = getWarehouse(warehouseId)
+            warehouse.collect { it?.let { warehouseRepository.deleteWarehouse(it) } }
+        }
     }
 
     fun getProvincesList(): List<String> {
         return listOf("AB", "BC", "MB", "NB", "NL", "NS", "NT", "NU", "ON", "PE", "QU", "SK")
+    }
+
+    companion object {
+        fun Factory(repository: WarehouseRepository) = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(WarehouseViewModel::class.java)) {
+                    @Suppress("UNCHECKED_CAST")
+                    return WarehouseViewModel(repository) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
     }
 }

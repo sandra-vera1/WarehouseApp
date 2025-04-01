@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -45,8 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.warehouseapp.R
-import com.example.warehouseapp.viewmodels.UserViewModel
 import com.example.warehouseapp.utils.SessionManager
+import com.example.warehouseapp.viewmodels.UserViewModel
 
 
 @Composable
@@ -57,14 +58,18 @@ fun LoginScreen(viewModel: UserViewModel, navController: NavController) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
 
+    val user by viewModel.getUser(username, password).collectAsState(initial = null)
+
     val login: () -> Unit = {
         if (username.isEmpty() || password.isEmpty()) {
             val toast = Toast.makeText(context, "User and password required", Toast.LENGTH_SHORT)
             toast.show()
         } else {
-            val user = viewModel.getUser(username, password)
             if (user != null) {
-                sessionManager.saveUserSession(user)
+                val currentUser = user
+                currentUser?.let {
+                    sessionManager.saveUserSession(it)
+                }
                 navController.navigate("goods_list") {
                     popUpTo("login") { inclusive = true }
                     launchSingleTop = true

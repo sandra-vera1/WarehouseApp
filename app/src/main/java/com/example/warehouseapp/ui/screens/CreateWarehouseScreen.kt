@@ -8,13 +8,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.warehouseapp.data.Warehouse
+import com.example.warehouseapp.data.models.Warehouse
 import com.example.warehouseapp.ui.components.FooterBar
 import com.example.warehouseapp.utils.SessionManager
 import com.example.warehouseapp.viewmodels.WarehouseViewModel
@@ -27,22 +26,32 @@ fun CreateWarehouseScreen(
     warehouseId: Int,
     onNavigateBack: () -> Unit
 ) {
-    val warehouse = if (warehouseId != -1) {
-        viewModel.getWarehouse(warehouseId)
-    } else {
-        Warehouse(-1, "", "", "", 0)
-    }
+
+    val warehouseFlow = remember(warehouseId) { viewModel.getWarehouse(warehouseId) }
+
     val provinces = viewModel.getProvincesList()
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
     val role = sessionManager.getUserRole()
-    var selectedProvince by remember { mutableStateOf(if (warehouse.province == "") provinces[0] else warehouse.province) }
-    var name by remember { mutableStateOf(warehouse.name) }
-    var locationAddress by remember { mutableStateOf(warehouse.locationAddress) }
+
+    val warehouse by warehouseFlow.collectAsStateWithLifecycle(initialValue = null)
+
+    var selectedProvince by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var locationAddress by remember { mutableStateOf("") }
+
+    LaunchedEffect(warehouse) {
+        if (warehouse != null) {
+            name = warehouse!!.name
+            selectedProvince = warehouse!!.province
+            locationAddress = warehouse!!.locationAddress
+        }
+    }
+
     Scaffold(
         topBar = {
             WoofTopAppBar(
-                if (warehouseId != -1) "Edit Warehouse" else "Create Warehouse",
+                if (warehouseId != 0) "Edit Warehouse" else "Create Warehouse",
                 onNavigateBack,
                 role
             )
@@ -62,26 +71,10 @@ fun CreateWarehouseScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(60.dp))
-            Text("Name:", fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(8.dp))
-            TextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Enter warehouse name") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Location Address:", fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(8.dp))
-            TextField(
-                value = locationAddress,
-                onValueChange = { locationAddress = it },
-                label = { Text("Enter location address") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+            TextFieldWithLabel("Name:", name, 1) { name = it }
+            TextFieldWithLabel("Location Address:", locationAddress, 3) { locationAddress = it }
             Text("Province:", fontWeight = FontWeight.Bold)
+
             Spacer(modifier = Modifier.height(8.dp))
 
             var expanded by remember { mutableStateOf(false) }
@@ -127,15 +120,30 @@ fun CreateWarehouseScreen(
             val saveWarehouse: () -> Unit = {
                 val warehouseToSave =
                     Warehouse(warehouseId, name, selectedProvince, locationAddress, 0)
-                if (warehouseId == -1) {
+                if (warehouseId == 0) {
                     viewModel.addWarehouse(warehouseToSave)
                 } else {
                     viewModel.updateWarehouse(warehouseToSave)
                 }
                 navController.popBackStack()
             }
-            val buttonText = if (warehouseId == -1) "Save" else "Update"
+            val buttonText = if (warehouseId == 0) "Save" else "Update"
             SaveButton(saveWarehouse, buttonText)
         }
     }
+}
+
+
+@Composable
+fun TextFieldWithLabel(label: String, value: String, minLines: Int, onValueChange: (String) -> Unit) {
+    Text(label, fontWeight = FontWeight.Bold)
+    Spacer(modifier = Modifier.height(8.dp))
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text("Enter $label") },
+        modifier = Modifier.fillMaxWidth(),
+        minLines= minLines
+    )
+    Spacer(modifier = Modifier.height(16.dp))
 }

@@ -1,50 +1,56 @@
 package com.example.warehouseapp.viewmodels
 
 import android.content.Context
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
-import com.example.warehouseapp.data.Goods
-import com.example.warehouseapp.data.goodsList
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.example.warehouseapp.data.models.Goods
+import com.example.warehouseapp.data.repositories.GoodsRepository
 import com.example.warehouseapp.deleteImage
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+import kotlin.jvm.java
 
 
-class GoodsViewModel : ViewModel(){
-    private val _goods = mutableStateListOf<Goods>()
-    val goodsL: SnapshotStateList<Goods> get() = _goods
+class GoodsViewModel(private val goodsRepository: GoodsRepository) : ViewModel(){
+    val goodsL: Flow<List<Goods>> = goodsRepository.getAllGoodsStream()
 
-    init {
-        _goods.addAll(goodsList)
-    }
-
-    fun getGoods(goodsId: Int) : Goods{
-        val index = _goods.indexOfFirst { it.id == goodsId }
-        return _goods[index]
-    }
-
-    fun getGoodsByWarehouseId(warehouseId: Int) : List<Goods> {
-        val goodsList = _goods.filter { it.warehouseId == warehouseId }
-        return goodsList
+    fun getGoods(goodsId: Int): Flow<Goods?> {
+        return goodsRepository.getGoodsStream(goodsId)
     }
 
     fun addGoods(goods: Goods) : Int {
-        val maxIdGoods = _goods.maxByOrNull { it.id }
-        val maxId = (maxIdGoods?.id ?: 0) + 1
-        goods.id = maxId
-        goods.warehouseId = null
-        _goods.add(goods)
-        return maxId
+        viewModelScope.launch {
+            goodsRepository.insertGoods(goods)
+        }
+        //TODO Get the inserted id
+        return goods.id
     }
 
     fun updateGoods(updatedGoods: Goods) {
-        val index = _goods.indexOfFirst { it.id == updatedGoods.id }
-        if (index != -1) {
-            _goods[index] = updatedGoods
+        viewModelScope.launch {
+            goodsRepository.updateGoods(updatedGoods)
         }
     }
 
-    fun deleteGoods(goods: Goods, context: Context) : Boolean {
-        deleteImage(context, goods.id.toString())
-        return _goods.removeAll { it.id == goods.id }
+    fun deleteGoods(goodsId: Int, context: Context) {
+        deleteImage(context, goodsId.toString())
+        viewModelScope.launch {
+            val goods = getGoods(goodsId)
+            goods.collect { it?.let { goodsRepository.deleteGoods(it) } }
+        }
     }
+
+    companion object {
+        fun Factory(repository: GoodsRepository) = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(GoodsViewModel::class.java)) {
+                    @Suppress("UNCHECKED_CAST")
+                    return GoodsViewModel(repository) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    }
+
 }

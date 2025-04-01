@@ -29,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,9 +40,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.warehouseapp.data.Goods
-import com.example.warehouseapp.data.Warehouse
+import com.example.warehouseapp.data.models.Goods
+import com.example.warehouseapp.data.models.Warehouse
 import com.example.warehouseapp.ui.components.FooterBar
 import com.example.warehouseapp.utils.SessionManager
 import com.example.warehouseapp.viewmodels.GoodsViewModel
@@ -56,12 +58,13 @@ fun GoodsListScreen(
     var selectedItems by remember { mutableStateOf(listOf<String>()) }
     var selectedItemIds by remember { mutableStateOf(listOf<Int>()) }
     val createNewGoods: () -> Unit = {
-        navController.navigate("create_goods/-1/false")
+        navController.navigate("create_goods/0/false")
     }
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
     val role = sessionManager.getUserRole()
-    val warehouses = warehouseViewModel.warehouses
+    val warehouses by warehouseViewModel.warehouses.collectAsStateWithLifecycle(emptyList())
+    val goodsList by viewModel.goodsL.collectAsState(initial = emptyList())
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -107,15 +110,15 @@ fun GoodsListScreen(
                 thickness = 1.dp,
                 modifier = Modifier.padding(vertical = 4.dp)
             )
+
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                val filteredGoods =
-                    if (selectedItemIds.isEmpty()) {
-                        viewModel.goodsL
-                    } else {
-                        viewModel.goodsL.filter { it.warehouseId in selectedItemIds }
-                    }
+                val filteredGoods = goodsList.filter { goods ->
+                    selectedItemIds.isEmpty() || goods.warehouseId in selectedItemIds
+                }
+
                 items(filteredGoods) { goods ->
                     val index = warehouses.indexOfFirst { it.id == goods.warehouseId }
                     GoodsItem(
@@ -144,10 +147,9 @@ private fun GoodsItem(
         navController.navigate("create_goods/$id/false")
     }
     val deleteGoods: (Int) -> Unit = {
-        if (viewModel.deleteGoods(goods, context)) {
-            val toast = Toast.makeText(context, "Goods deleted successfully", Toast.LENGTH_SHORT)
-            toast.show()
-        }
+
+        viewModel.deleteGoods(goods.id, context)
+        Toast.makeText(context, "Goods deleted successfully", Toast.LENGTH_SHORT).show()
     }
 
     Card(

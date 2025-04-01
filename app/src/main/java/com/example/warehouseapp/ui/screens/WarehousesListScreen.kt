@@ -16,17 +16,20 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.warehouseapp.data.ROLE_ADMIN
-import com.example.warehouseapp.data.Warehouse
+import com.example.warehouseapp.data.models.Warehouse
 import com.example.warehouseapp.ui.components.FooterBar
 import com.example.warehouseapp.utils.SessionManager
+import com.example.warehouseapp.utils.UserRoles.ROLE_ADMIN
 import com.example.warehouseapp.viewmodels.GoodsViewModel
 import com.example.warehouseapp.viewmodels.WarehouseViewModel
+import kotlinx.coroutines.flow.filter
 
 
 @Composable
@@ -40,8 +43,11 @@ fun WarehousesListScreen(
     val sessionManager = SessionManager(context)
     val role = sessionManager.getUserRole()
 
+    val warehouses = viewModel.warehouses.collectAsStateWithLifecycle(initialValue = emptyList()).value
+    val goodsList = goodsViewModel.goodsL.collectAsStateWithLifecycle(initialValue = emptyList()).value
+
     val createNewWarehouse: () -> Unit = {
-        navController.navigate("create_warehouse/-1")
+        navController.navigate("create_warehouse/0")
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -72,15 +78,17 @@ fun WarehousesListScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(viewModel.warehouses) { warehouse ->
-                    val goodsList = goodsViewModel.getGoodsByWarehouseId(warehouse.id)
-                    val quantity = goodsList.sumOf { goods -> goods.quantity }
-                    warehouse.totalGoods = quantity
+                items(warehouses) { warehouse ->
+                    val filteredGoods = goodsList.filter { it.warehouseId == warehouse.id }
+                    val quantity = filteredGoods.sumOf { it.quantity }
+                    val updatedWarehouse = warehouse.copy(totalGoods = quantity)
+
                     WarehouseItem(
                         viewModel,
-                        warehouse = warehouse,
+                        warehouse = updatedWarehouse,
                         modifier = Modifier.padding(1.dp),
-                        navController, role
+                        navController,
+                        role
                     )
                 }
             }
@@ -101,11 +109,8 @@ private fun WarehouseItem(
         navController.navigate("create_warehouse/$id")
     }
     val deleteWarehouse: (Int) -> Unit = { id ->
-        if (viewModel.deleteWarehouse(id)) {
-            val toast =
-                Toast.makeText(context, "Warehouse deleted successfully", Toast.LENGTH_SHORT)
-            toast.show()
-        }
+        viewModel.deleteWarehouse(id)
+        Toast.makeText(context, "Warehouse deleted successfully", Toast.LENGTH_SHORT).show()
     }
 
     Card(

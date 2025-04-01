@@ -3,7 +3,7 @@ package com.example.warehouseapp.utils
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.example.warehouseapp.data.User
+import com.example.warehouseapp.data.models.User
 
 class SessionManager(context: Context) {
     private val prefs: SharedPreferences =

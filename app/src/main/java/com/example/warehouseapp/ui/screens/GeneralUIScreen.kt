@@ -61,7 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.example.warehouseapp.R
-import com.example.warehouseapp.data.ROLE_ADMIN
+import com.example.warehouseapp.utils.UserRoles.ROLE_ADMIN
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
