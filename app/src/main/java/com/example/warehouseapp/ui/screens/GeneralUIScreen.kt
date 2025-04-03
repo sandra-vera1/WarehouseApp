@@ -168,7 +168,7 @@ fun TopInformation(
 ) {
     Column {
         Text(
-            text = "Id: $id $additionalText $quantity",// TODO: SVG
+            text = "$additionalText $quantity",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
