@@ -52,6 +52,7 @@ fun CreateGoodsScreen(
     var goodsDescription by remember { mutableStateOf("") }
     var quantity by remember { mutableIntStateOf(0) }
     var selectedWarehouse by remember { mutableStateOf<Warehouse?>(null) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>("${context.filesDir}/default.png".toUri()) }
 
     LaunchedEffect(goods) {
         if (goods != null) {
@@ -59,11 +60,10 @@ fun CreateGoodsScreen(
             goodsDescription = goods!!.description
             quantity = goods!!.quantity
             selectedWarehouse = warehouses.find { it.id == goods!!.warehouseId } ?: warehouses.firstOrNull()
+            selectedImageUri ="${context.filesDir}/${goods!!.image}".toUri()
         }
     }
 
-    val imageFileName = goods?.image ?: "default.png"
-    var selectedImageUri by remember { mutableStateOf<Uri?>("${context.filesDir}/$imageFileName".toUri()) }
 
     deleteTempImage(context)
     saveDefaultSvgAsPng(context)

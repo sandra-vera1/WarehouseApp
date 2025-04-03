@@ -64,7 +64,7 @@ abstract class WarehouseDatabase : RoomDatabase() {
             )
             warehousesList.forEach { warehouseDao.insert(it) }
 
-            val goodsList = listOf(
+            val goodsList = listOf( //This is the initial data to populate the database and next show some initial data in the list page.
                 Goods(
                     id = 1,
                     name = "Pencil",
@@ -108,7 +108,7 @@ abstract class WarehouseDatabase : RoomDatabase() {
             )
             goodsList.forEach { goodsDao.insert(it) }
 
-            val userList = listOf(
+            val userList = listOf( //This is the initial data to create users in the database because in the business context that we proposed, this app is a complement of a robust system that efficiently manages all corporation operations.
 
                 User(
                     id = 1,
