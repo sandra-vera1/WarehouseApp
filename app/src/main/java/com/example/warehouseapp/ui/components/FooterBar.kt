@@ -50,8 +50,8 @@ fun FooterBar(navController: NavController, footerViewModel: FooterViewModel = v
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.1f)
-            .background(Color.White),
+            .fillMaxHeight(0.1f),
+          //  .background(Color.White),
         verticalArrangement = Arrangement.Center
     ) {
         HorizontalDivider(

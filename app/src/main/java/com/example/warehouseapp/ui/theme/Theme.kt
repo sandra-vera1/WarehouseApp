@@ -14,7 +14,11 @@ import androidx.compose.ui.platform.LocalContext
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
-    tertiary = Pink80
+    tertiary = Pink80,
+    background = Background80,
+    surface = Surface80,
+    onPrimary = TextPrimary80,
+    onSecondary = TextSecondary80
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -33,7 +37,7 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
-@Composable
+/*@Composable
 fun WarehouseAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
@@ -46,6 +50,24 @@ fun WarehouseAppTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
+    }
+
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
+    )
+}*/
+
+@Composable
+fun WarehouseAppTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    // Dynamic color is available on Android 12+
+    content: @Composable () -> Unit
+) {
+    val colorScheme = when {
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
