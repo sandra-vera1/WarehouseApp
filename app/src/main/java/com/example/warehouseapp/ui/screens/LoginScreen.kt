@@ -42,14 +42,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.warehouseapp.R
+import com.example.warehouseapp.data.models.User
 import com.example.warehouseapp.utils.SessionManager
 import com.example.warehouseapp.viewmodels.UserViewModel
 
 
 @Composable
-fun LoginScreen(viewModel: UserViewModel, navController: NavController) {
+fun LoginScreen(
+    viewModel: UserViewModel,
+    onLoginSuccess: (User) -> Unit = {},
+    showErrorMessage: (String) -> Unit = {},
+) {
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
@@ -68,14 +72,9 @@ fun LoginScreen(viewModel: UserViewModel, navController: NavController) {
                 currentUser?.let {
                     sessionManager.saveUserSession(it)
                 }
-                navController.navigate("goods_list") {
-                    popUpTo("login") { inclusive = true }
-                    launchSingleTop = true
-                }
+                onLoginSuccess(user!!)
             } else {
-                val toast =
-                    Toast.makeText(context, "The username or password is incorrect. Try again", Toast.LENGTH_SHORT)
-                toast.show()
+                showErrorMessage("The username or password is incorrect. Try again")
             }
         }
     }

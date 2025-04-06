@@ -1,11 +1,12 @@
 package com.example.warehouseapp
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
@@ -61,6 +62,7 @@ fun WarehouseApp(
     goodsViewModel: GoodsViewModel,
     isLoggedIn: Boolean
 ) {
+    val context = LocalContext.current
     val navController = rememberNavController()
     WarehouseAppTheme {
         NavHost(
@@ -68,7 +70,19 @@ fun WarehouseApp(
             startDestination = if (isLoggedIn) "goods_list" else "login"
         ) {
             composable("login") {
-                LoginScreen(userViewModel, navController)
+                LoginScreen(
+                    viewModel = userViewModel,
+                    onLoginSuccess = { user ->
+                        SessionManager(context).saveUserSession(user)
+                        navController.navigate("goods_list") {
+                            popUpTo("login") { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                    showErrorMessage = { msg ->
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    }
+                )
             }
             composable("warehouse_list") {
                 WarehousesListScreen(warehouseViewModel, goodsViewModel, navController)
