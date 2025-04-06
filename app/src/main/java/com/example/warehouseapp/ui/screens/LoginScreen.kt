@@ -32,10 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -90,7 +88,7 @@ fun LoginScreen(viewModel: UserViewModel, navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color.White),
+                .background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
@@ -151,13 +149,13 @@ fun LoginScreen(viewModel: UserViewModel, navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth(0.3f)
                         .height(55.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.brown)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp),
                     contentPadding = PaddingValues(4.dp)
                 ) {
                     Text(
                         text = "Login",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp
                     )

@@ -59,8 +59,8 @@ abstract class WarehouseDatabase : RoomDatabase() {
             userDao: UserDao
         ) {
             val warehousesList = listOf(
-                Warehouse(1, "Main Warehouse", "ON", "123 Main Street", 720),
-                Warehouse(2, "Backup Warehouse", "BC", "456 Second Avenue", 1100)
+                Warehouse(1, "Main Warehouse", "ON", "123 Main Street"),
+                Warehouse(2, "Backup Warehouse", "BC", "456 Second Avenue")
             )
             warehousesList.forEach { warehouseDao.insert(it) }
 

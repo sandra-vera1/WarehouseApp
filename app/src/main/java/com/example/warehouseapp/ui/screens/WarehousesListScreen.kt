@@ -14,11 +14,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,7 +28,6 @@ import com.example.warehouseapp.utils.SessionManager
 import com.example.warehouseapp.utils.UserRoles.ROLE_ADMIN
 import com.example.warehouseapp.viewmodels.GoodsViewModel
 import com.example.warehouseapp.viewmodels.WarehouseViewModel
-import kotlinx.coroutines.flow.filter
 
 
 @Composable
@@ -63,7 +61,7 @@ fun WarehousesListScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.background
                 )
         ) {
 
@@ -71,7 +69,7 @@ fun WarehousesListScreen(
                 CreateNewButton(createNewWarehouse)
             }
             HorizontalDivider(
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.outline,
                 thickness = 1.dp,
                 modifier = Modifier.padding(vertical = 4.dp)
             )
@@ -81,8 +79,8 @@ fun WarehousesListScreen(
                 items(warehouses) { warehouse ->
                     val filteredGoods = goodsList.filter { it.warehouseId == warehouse.id }
                     val quantity = filteredGoods.sumOf { it.quantity }
-                    val updatedWarehouse = warehouse.copy(totalGoods = quantity)
-
+                    val updatedWarehouse = warehouse.copy()
+                    updatedWarehouse.totalGoods = quantity
                     WarehouseItem(
                         viewModel,
                         warehouse = updatedWarehouse,
@@ -125,14 +123,14 @@ private fun WarehouseItem(
                     )
                 )
                 .background(
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.background
                 )
                 .padding(horizontal = 10.dp, vertical = 6.dp),
 
             )
         {
             Row(modifier = Modifier.fillMaxWidth()) {
-                TopInformation(warehouse.id, "Total goods:", warehouse.totalGoods)
+                TopInformation("Total goods:", warehouse.totalGoods)
             }
 
 
@@ -149,7 +147,7 @@ private fun WarehouseItem(
                     }
                 }
             }
-            HorizontalDivider(color = Color.Black, thickness = 1.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
         }
     }
 }

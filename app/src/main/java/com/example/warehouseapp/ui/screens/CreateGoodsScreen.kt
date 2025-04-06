@@ -9,8 +9,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.core.net.toUri
@@ -59,14 +59,19 @@ fun CreateGoodsScreen(
             name = goods!!.name
             goodsDescription = goods!!.description
             quantity = goods!!.quantity
-            selectedWarehouse = warehouses.find { it.id == goods!!.warehouseId } ?: warehouses.firstOrNull()
-            selectedImageUri ="${context.filesDir}/${goods!!.image}".toUri()
+            selectedWarehouse =
+                warehouses.find { it.id == goods!!.warehouseId } ?: warehouses.firstOrNull()
+            selectedImageUri = "${context.filesDir}/${goods!!.image}".toUri()
         }
     }
 
 
     deleteTempImage(context)
-    saveDefaultSvgAsPng(context)
+    saveDefaultSvgAsPng(
+        context,
+        MaterialTheme.colorScheme.tertiaryContainer.toArgb(),
+        MaterialTheme.colorScheme.tertiary.toArgb()
+    )
 
     Scaffold(
         topBar = {
@@ -85,7 +90,7 @@ fun CreateGoodsScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.background
                 )
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
@@ -98,8 +103,14 @@ fun CreateGoodsScreen(
 
 
             TextFieldWithLabel("Name:", name, isAllocationPage, 1) { name = it }
-            TextFieldWithLabel("Description:", goodsDescription, isAllocationPage, 3) { goodsDescription = it }
+            TextFieldWithLabel(
+                "Description:",
+                goodsDescription,
+                isAllocationPage,
+                3
+            ) { goodsDescription = it }
             IntegerTextField(
+                "Quantity",
                 quantity,
                 onValueChange = { quantity = it },
                 isAllocationPage
@@ -113,16 +124,14 @@ fun CreateGoodsScreen(
             val saveGoods: () -> Unit = {
                 val goodsToSave =
                     Goods(goodsId, name, goodsDescription, quantity, "", selectedWarehouse?.id)
-                if (goodsId == 0) {
-                    goodsToSave.id = viewModel.addGoods(goodsToSave)
+                if (goodsToSave.id == 0) {
+                    viewModel.addGoods(goodsToSave) { newId ->
+                        goodsToSave.id = newId
+                        afterSave(goodsToSave, selectedImageUri, context, viewModel, navController)
+                    }
+                } else {
+                    afterSave(goodsToSave, selectedImageUri, context, viewModel, navController)
                 }
-                goodsToSave.image = "${goodsToSave.id}.jpg"
-
-                selectedImageUri?.let { uri ->
-                    saveAndMoveImage(context, uri, goodsToSave.id)
-                }
-                viewModel.updateGoods(goodsToSave)
-                navController.popBackStack()
             }
             val buttonText =
                 if (isAllocationPage) "Allocate Goods" else if (goodsId == 0) "Save" else "Update"
@@ -142,18 +151,49 @@ fun CreateGoodsScreen(
     }
 }
 
+fun afterSave(
+    goods: Goods,
+    imageUri: Uri?,
+    context: Context,
+    viewModel: GoodsViewModel,
+    navController: NavController
+) {
+    goods.image = "${goods.id}.jpg"
+    imageUri?.let { uri ->
+        saveAndMoveImage(context, uri, goods.id)
+    }
+    viewModel.updateGoods(goods)
+    navController.popBackStack()
+}
+
 
 @Composable
-fun TextFieldWithLabel(label: String, value: String, isReadOnly: Boolean, minLines: Int, onValueChange: (String) -> Unit) {
+fun TextFieldWithLabel(
+    label: String,
+    value: String,
+    isReadOnly: Boolean,
+    minLines: Int,
+    onValueChange: (String) -> Unit
+) {
     Text(label, fontWeight = FontWeight.Bold)
     Spacer(modifier = Modifier.height(8.dp))
-    TextField(value = value, onValueChange = onValueChange, modifier = Modifier.fillMaxWidth(), readOnly = isReadOnly, minLines = minLines)
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier.fillMaxWidth(),
+        readOnly = isReadOnly,
+        minLines = minLines
+    )
     Spacer(modifier = Modifier.height(16.dp))
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WarehouseDropdown(warehouses: List<Warehouse>, selectedWarehouse: Warehouse?, onSelected: (Warehouse) -> Unit) {
+fun WarehouseDropdown(
+    warehouses: List<Warehouse>,
+    selectedWarehouse: Warehouse?,
+    onSelected: (Warehouse) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
     Spacer(modifier = Modifier.height(24.dp))
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
@@ -161,7 +201,9 @@ fun WarehouseDropdown(warehouses: List<Warehouse>, selectedWarehouse: Warehouse?
             readOnly = true,
             value = selectedWarehouse?.name ?: "Select Warehouse",
             onValueChange = {},
-            modifier = Modifier.fillMaxWidth().menuAnchor(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {

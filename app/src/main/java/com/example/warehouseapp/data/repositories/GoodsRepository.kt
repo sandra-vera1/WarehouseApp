@@ -17,7 +17,7 @@ interface GoodsRepository {
     /**
      * Insert goods in the data source
      */
-    suspend fun insertGoods(goods: Goods)
+    suspend fun insertGoods(goods: Goods) : Long
 
     /**
      * Delete goods from the data source

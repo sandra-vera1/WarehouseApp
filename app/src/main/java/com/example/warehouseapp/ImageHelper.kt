@@ -1,16 +1,16 @@
 package com.example.warehouseapp
 
-import androidx.core.content.res.ResourcesCompat
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.VectorDrawable
 import android.net.Uri
-import androidx.core.content.ContextCompat
+import androidx.annotation.ColorInt
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.createBitmap
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
-import androidx.core.graphics.createBitmap
 
 fun saveImageToTempFolder(context: Context, imageUri: Uri): File? {
     return try {
@@ -55,14 +55,18 @@ fun deleteTempImage(context: Context) {
     }
 }
 
-fun deleteImage(context: Context, name: String) {
+fun deleteImage(context: Context, name: String?) {
+    if (name.isNullOrEmpty()) {
+        return
+    }
+
     val tempFile = File(context.filesDir, "$name.jpg")
     if (tempFile.exists()) {
         tempFile.delete()
     }
 }
 
-fun saveDefaultSvgAsPng(context: Context) {
+fun saveDefaultSvgAsPng(context: Context, @ColorInt tintColor: Int, @ColorInt backgroundColor: Int) {
     val file = File(context.filesDir, "default.png")
     if (!file.exists()) {
         val drawable = ResourcesCompat.getDrawable(
@@ -71,7 +75,6 @@ fun saveDefaultSvgAsPng(context: Context) {
             null
         ) as? VectorDrawable ?: return
 
-        val tintColor = ContextCompat.getColor(context, R.color.red_light)
         drawable.setTint(tintColor)
 
         val canvasWidth = 2000
@@ -81,7 +84,6 @@ fun saveDefaultSvgAsPng(context: Context) {
         val bitmap = createBitmap(canvasWidth, canvasHeight)
         val canvas = Canvas(bitmap)
 
-        val backgroundColor = ContextCompat.getColor(context, R.color.rose_light)
         canvas.drawColor(backgroundColor)
 
         val left = (canvasWidth - drawableSize) / 2

@@ -1,7 +1,6 @@
 package com.example.warehouseapp.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -51,12 +50,11 @@ fun FooterBar(navController: NavController, footerViewModel: FooterViewModel = v
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(0.1f),
-          //  .background(Color.White),
         verticalArrangement = Arrangement.Center
     ) {
         HorizontalDivider(
             thickness = 1.dp,
-            color = Color.Black
+            color = MaterialTheme.colorScheme.outline
         )
         Row(
             modifier = Modifier
@@ -115,9 +113,9 @@ fun FooterBar(navController: NavController, footerViewModel: FooterViewModel = v
 
 @Composable
 fun FooterButton(text: String, iconRes: Int, isSelected: Boolean, onClick: () -> Unit) {
-    val backgroundColor = if (isSelected) colorResource(id = R.color.brown) else Color.White
-    val contentColor = if (isSelected) Color.White else Color.Black
-    val imageColor = if (isSelected) Color.White else colorResource(id = R.color.brown)
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+    val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
+    val imageColor = if (isSelected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
 
     Button(
         onClick = onClick,

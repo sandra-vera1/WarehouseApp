@@ -9,7 +9,7 @@ class OfflineGoodsRepository(private val godsDao: GoodsDao) : GoodsRepository {
 
     override fun getGoodsStream(id: Int): Flow<Goods?> = godsDao.getGood(id)
 
-    override suspend fun insertGoods(goods: Goods) = godsDao.insert(goods)
+    override suspend fun insertGoods(goods: Goods) : Long = godsDao.insert(goods)
 
     override suspend fun deleteGoods(goods: Goods) = godsDao.delete(goods)
 

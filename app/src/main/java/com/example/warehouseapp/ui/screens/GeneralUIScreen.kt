@@ -43,11 +43,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
@@ -74,7 +72,7 @@ fun WoofTopAppBar(pageName: String, role: Int) {
             }
         )
         HorizontalDivider(
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.outline,
             thickness = 1.dp,
             modifier = Modifier.fillMaxWidth()
         )
@@ -93,7 +91,7 @@ fun WoofTopAppBar(pageName: String, onNavigateBack: () -> Unit, role: Int) {
             navigationIcon = {
                 IconButton(
                     onClick = onNavigateBack,
-                    modifier = Modifier.background(Color.White)
+                    modifier = Modifier.background(MaterialTheme.colorScheme.background)
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -103,7 +101,7 @@ fun WoofTopAppBar(pageName: String, onNavigateBack: () -> Unit, role: Int) {
             }
         )
         HorizontalDivider(
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.outline,
             thickness = 1.dp,
             modifier = Modifier.fillMaxWidth()
         )
@@ -112,8 +110,8 @@ fun WoofTopAppBar(pageName: String, onNavigateBack: () -> Unit, role: Int) {
 
 @Composable
 private fun TitleTopBar(pageName: String, role: Int) {
-    val brownColor = colorResource(id = R.color.brown)
-    val roseLight = colorResource(id = R.color.rose_light)
+    val brownColor = MaterialTheme.colorScheme.primary
+    val roseLight = MaterialTheme.colorScheme.tertiary
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -121,7 +119,7 @@ private fun TitleTopBar(pageName: String, role: Int) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -162,7 +160,6 @@ private fun TitleTopBar(pageName: String, role: Int) {
 
 @Composable
 fun TopInformation(
-    id: Int,
     additionalText: String,
     quantity: Int
 ) {
@@ -202,7 +199,7 @@ fun ActionButtons(
     editAction: (Int) -> Unit,
     deleteAction: (Int) -> Unit
 ) {
-    val buttonColor = colorResource(id = R.color.brown)
+    val buttonColor = MaterialTheme.colorScheme.primary
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -221,7 +218,7 @@ fun ActionButtons(
             Image(
                 painter = painterResource(id = R.drawable.edit_square_24),
                 contentDescription = "Edit",
-                colorFilter = ColorFilter.tint(Color.White)
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
             )
         }
 
@@ -237,7 +234,7 @@ fun ActionButtons(
             Image(
                 painter = painterResource(id = R.drawable.delete_24),
                 contentDescription = "Delete",
-                colorFilter = ColorFilter.tint(Color.White)
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
             )
         }
     }
@@ -245,7 +242,7 @@ fun ActionButtons(
 
 @Composable
 fun CreateNewButton(onClick: () -> Unit) {
-    val buttonColor = colorResource(id = R.color.brown)
+    val buttonColor = MaterialTheme.colorScheme.primary
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -260,7 +257,7 @@ fun CreateNewButton(onClick: () -> Unit) {
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
         ) {
-            Text(text = "Create New", color = Color.White, fontWeight = FontWeight.Bold)
+            Text(text = "Create New", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -268,7 +265,7 @@ fun CreateNewButton(onClick: () -> Unit) {
 
 @Composable
 fun FnButton(onClick: () -> Unit, buttonText: String) {
-    val buttonColor = colorResource(id = R.color.brown)
+    val buttonColor = MaterialTheme.colorScheme.primary
     Button(
         onClick = onClick,
         modifier = Modifier
@@ -277,7 +274,7 @@ fun FnButton(onClick: () -> Unit, buttonText: String) {
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
     ) {
-        Text(text = buttonText, color = Color.White, fontWeight = FontWeight.Bold)
+        Text(text = buttonText, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -314,10 +311,13 @@ fun TwoButtons(
 
 @Composable
 fun IntegerTextField(
+    label: String,
     quantity: Int,
     onValueChange: (Int) -> Unit,
     readOnly: Boolean
 ) {
+    Text(label, fontWeight = FontWeight.Bold)
+    Spacer(modifier = Modifier.height(8.dp))
     TextField(
         value = quantity.toString(),
         onValueChange = { newText ->
@@ -357,7 +357,7 @@ fun ImageInputWithPreview(
             text = buildAnnotatedString {
                 withStyle(
                     style = SpanStyle(
-                        color = colorResource(id = R.color.brown),
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         textDecoration = TextDecoration.Underline
                     )

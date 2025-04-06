@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlin.jvm.java
 
-
 class GoodsViewModel(private val goodsRepository: GoodsRepository) : ViewModel(){
     val goodsL: Flow<List<Goods>> = goodsRepository.getAllGoodsStream()
 
@@ -19,12 +18,11 @@ class GoodsViewModel(private val goodsRepository: GoodsRepository) : ViewModel()
         return goodsRepository.getGoodsStream(goodsId)
     }
 
-    fun addGoods(goods: Goods) : Int {
+    fun addGoods(goods: Goods, onResult: (Int) -> Unit) {
         viewModelScope.launch {
-            goodsRepository.insertGoods(goods)
+            val insertedId = goodsRepository.insertGoods(goods).toInt()
+            onResult(insertedId)
         }
-        //TODO Get the inserted id
-        return goods.id
     }
 
     fun updateGoods(updatedGoods: Goods) {

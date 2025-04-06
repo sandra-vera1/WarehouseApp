@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
 class WarehouseViewModel(private val warehouseRepository: WarehouseRepository) : ViewModel() {
-
     val warehouses: Flow<List<Warehouse>> = warehouseRepository.getAllWarehousesStream()
 
     fun getWarehouse(warehouseId: Int): Flow<Warehouse?> {
