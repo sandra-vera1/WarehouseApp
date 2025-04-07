@@ -9,9 +9,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -20,7 +20,6 @@ import com.example.warehouseapp.data.models.Goods
 import com.example.warehouseapp.data.models.Warehouse
 import com.example.warehouseapp.deleteTempImage
 import com.example.warehouseapp.moveImageToPermanentFolder
-import com.example.warehouseapp.saveDefaultSvgAsPng
 import com.example.warehouseapp.saveImageToTempFolder
 import com.example.warehouseapp.ui.components.FooterBar
 import com.example.warehouseapp.utils.SessionManager
@@ -50,7 +49,7 @@ fun CreateGoodsScreen(
     // Default values for new goods
     var name by remember { mutableStateOf("") }
     var goodsDescription by remember { mutableStateOf("") }
-    var quantity by remember { mutableIntStateOf(0) }
+    var quantity by remember { mutableIntStateOf(-1) }
     var selectedWarehouse by remember { mutableStateOf<Warehouse?>(null) }
     var selectedImageUri by remember { mutableStateOf<Uri?>("${context.filesDir}/default.png".toUri()) }
 
@@ -67,11 +66,6 @@ fun CreateGoodsScreen(
 
 
     deleteTempImage(context)
-    saveDefaultSvgAsPng(
-        context,
-        MaterialTheme.colorScheme.tertiaryContainer.toArgb(),
-        MaterialTheme.colorScheme.tertiary.toArgb()
-    )
 
     Scaffold(
         topBar = {
@@ -102,9 +96,9 @@ fun CreateGoodsScreen(
             }
 
 
-            TextFieldWithLabel("Name:", name, isAllocationPage, 1) { name = it }
+            TextFieldWithLabel("Name", name, isAllocationPage, 1) { name = it }
             TextFieldWithLabel(
-                "Description:",
+                "Description",
                 goodsDescription,
                 isAllocationPage,
                 3
@@ -120,17 +114,17 @@ fun CreateGoodsScreen(
             if (isAllocationPage) {
                 WarehouseDropdown(warehouses, selectedWarehouse) { selectedWarehouse = it }
             }
-
             val saveGoods: () -> Unit = {
+                quantity = if(quantity <= -1) 0 else quantity
                 val goodsToSave =
                     Goods(goodsId, name, goodsDescription, quantity, "", selectedWarehouse?.id)
                 if (goodsToSave.id == 0) {
                     viewModel.addGoods(goodsToSave) { newId ->
                         goodsToSave.id = newId
-                        afterSave(goodsToSave, selectedImageUri, context, viewModel, navController)
+                        afterSave(goodsToSave, selectedImageUri, context, viewModel, onNavigateBack)
                     }
                 } else {
-                    afterSave(goodsToSave, selectedImageUri, context, viewModel, navController)
+                    afterSave(goodsToSave, selectedImageUri, context, viewModel, onNavigateBack)
                 }
             }
             val buttonText =
@@ -156,14 +150,14 @@ fun afterSave(
     imageUri: Uri?,
     context: Context,
     viewModel: GoodsViewModel,
-    navController: NavController
+    onNavigateBack: () -> Unit
 ) {
     goods.image = "${goods.id}.jpg"
     imageUri?.let { uri ->
         saveAndMoveImage(context, uri, goods.id)
     }
     viewModel.updateGoods(goods)
-    navController.popBackStack()
+    onNavigateBack()
 }
 
 
@@ -175,12 +169,13 @@ fun TextFieldWithLabel(
     minLines: Int,
     onValueChange: (String) -> Unit
 ) {
-    Text(label, fontWeight = FontWeight.Bold)
+    Text("$label:", fontWeight = FontWeight.Bold)
     Spacer(modifier = Modifier.height(8.dp))
     TextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
+            .testTag(label),
         readOnly = isReadOnly,
         minLines = minLines
     )
@@ -203,7 +198,8 @@ fun WarehouseDropdown(
             onValueChange = {},
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(),
+                .menuAnchor()
+                .testTag("WarehouseDropdown"),
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {

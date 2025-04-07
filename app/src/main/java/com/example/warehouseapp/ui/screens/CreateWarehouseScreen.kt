@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -88,8 +89,8 @@ fun CreateWarehouseScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(60.dp))
-            TextFieldWithLabel("Name:", name, 1) { name = it }
-            TextFieldWithLabel("Location Address:", locationAddress, 3) { locationAddress = it }
+            TextFieldWithLabel("Name", name, 1) { name = it }
+            TextFieldWithLabel("Location Address", locationAddress, 3) { locationAddress = it }
             Text("Province:", fontWeight = FontWeight.Bold)
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -108,7 +109,8 @@ fun CreateWarehouseScreen(
                     onValueChange = { },
                     modifier = Modifier
                         .width(110.dp)
-                        .menuAnchor(),
+                        .menuAnchor()
+                        .testTag("ProvinceDropdown"),
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(
                             expanded = expanded
@@ -142,7 +144,7 @@ fun CreateWarehouseScreen(
                 } else {
                     viewModel.updateWarehouse(warehouseToSave)
                 }
-                navController.popBackStack()
+                onNavigateBack()
             }
             val buttonText = if (warehouseId == 0) "Save" else "Update"
             SaveButton(saveWarehouse, buttonText)
@@ -152,15 +154,22 @@ fun CreateWarehouseScreen(
 
 
 @Composable
-fun TextFieldWithLabel(label: String, value: String, minLines: Int, onValueChange: (String) -> Unit) {
-    Text(label, fontWeight = FontWeight.Bold)
+fun TextFieldWithLabel(
+    label: String,
+    value: String,
+    minLines: Int,
+    onValueChange: (String) -> Unit
+) {
+    Text("$label:", fontWeight = FontWeight.Bold)
     Spacer(modifier = Modifier.height(8.dp))
     TextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text("Enter $label") },
-        modifier = Modifier.fillMaxWidth(),
-        minLines= minLines
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(label),
+        minLines = minLines
     )
     Spacer(modifier = Modifier.height(16.dp))
 }

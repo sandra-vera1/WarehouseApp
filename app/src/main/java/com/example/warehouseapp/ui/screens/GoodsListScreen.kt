@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.warehouseapp.data.models.Goods
 import com.example.warehouseapp.data.models.Warehouse
+import com.example.warehouseapp.saveDefaultSvgAsPng
 import com.example.warehouseapp.ui.components.FooterBar
 import com.example.warehouseapp.utils.SessionManager
 import com.example.warehouseapp.viewmodels.GoodsViewModel
@@ -65,6 +67,13 @@ fun GoodsListScreen(
     val role = sessionManager.getUserRole()
     val warehouses by warehouseViewModel.warehouses.collectAsStateWithLifecycle(emptyList())
     val goodsList by viewModel.goodsL.collectAsState(initial = emptyList())
+
+    saveDefaultSvgAsPng(
+        context,
+        MaterialTheme.colorScheme.tertiaryContainer.toArgb(),
+        MaterialTheme.colorScheme.tertiary.toArgb()
+    )
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {

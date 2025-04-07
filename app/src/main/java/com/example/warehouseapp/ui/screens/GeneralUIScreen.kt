@@ -46,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
@@ -61,6 +62,8 @@ import coil.compose.AsyncImage
 import com.example.warehouseapp.R
 import com.example.warehouseapp.utils.UserRoles.ROLE_ADMIN
 import java.io.File
+
+import androidx.compose.ui.text.input.TextFieldValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -145,7 +148,9 @@ private fun TitleTopBar(pageName: String, role: Int) {
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = if(role == ROLE_ADMIN) ImageVector.vectorResource(R.drawable.font_a_24dp) else ImageVector.vectorResource(R.drawable.font_e_24dp),
+                        imageVector = if (role == ROLE_ADMIN) ImageVector.vectorResource(R.drawable.font_a_24dp) else ImageVector.vectorResource(
+                            R.drawable.font_e_24dp
+                        ),
                         contentDescription = "User",
                         tint = brownColor,
                         modifier = Modifier
@@ -257,7 +262,11 @@ fun CreateNewButton(onClick: () -> Unit) {
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
         ) {
-            Text(text = "Create New", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+            Text(
+                text = "Create New",
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
@@ -270,11 +279,16 @@ fun FnButton(onClick: () -> Unit, buttonText: String) {
         onClick = onClick,
         modifier = Modifier
             .wrapContentWidth()
-            .height(48.dp),
+            .height(48.dp)
+            .testTag(buttonText),
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
     ) {
-        Text(text = buttonText, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+        Text(
+            text = buttonText,
+            color = MaterialTheme.colorScheme.onPrimary,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
@@ -319,14 +333,16 @@ fun IntegerTextField(
     Text(label, fontWeight = FontWeight.Bold)
     Spacer(modifier = Modifier.height(8.dp))
     TextField(
-        value = quantity.toString(),
+        value = if(quantity == -1) "" else quantity.toString(),
         onValueChange = { newText ->
             val newValue = newText.toIntOrNull()
             if (newValue != null) {
                 onValueChange(newValue)
             }
         },
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(label),
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
         readOnly = readOnly
     )
@@ -369,6 +385,7 @@ fun ImageInputWithPreview(
                 .fillMaxWidth()
                 .clickable { launcher.launch("image/*") }
                 .align(Alignment.Start)
+                .testTag("Add an image")
         )
     }
 }
