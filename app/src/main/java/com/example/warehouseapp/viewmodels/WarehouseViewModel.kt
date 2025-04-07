@@ -8,20 +8,20 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
-class WarehouseViewModel(private val warehouseRepository: WarehouseRepository) : ViewModel() {
-    val warehouses: Flow<List<Warehouse>> = warehouseRepository.getAllWarehousesStream()
+open class WarehouseViewModel(private val warehouseRepository: WarehouseRepository) : ViewModel() {
+    open val warehouses: Flow<List<Warehouse>> = warehouseRepository.getAllWarehousesStream()
 
-    fun getWarehouse(warehouseId: Int): Flow<Warehouse?> {
+    open fun getWarehouse(warehouseId: Int): Flow<Warehouse?> {
         return warehouseRepository.getWarehouseStream(warehouseId)
     }
 
-    fun addWarehouse(warehouse: Warehouse) {
+    open fun addWarehouse(warehouse: Warehouse) {
         viewModelScope.launch {
             warehouseRepository.insertWarehouse(warehouse)
         }
     }
 
-    fun updateWarehouse(updatedWarehouse: Warehouse) {
+    open fun updateWarehouse(updatedWarehouse: Warehouse) {
         viewModelScope.launch {
             warehouseRepository.updateWarehouse(updatedWarehouse)
         }
@@ -35,7 +35,7 @@ class WarehouseViewModel(private val warehouseRepository: WarehouseRepository) :
         }
     }
 
-    fun getProvincesList(): List<String> {
+    open fun getProvincesList(): List<String> {
         return listOf("AB", "BC", "MB", "NB", "NL", "NS", "NT", "NU", "ON", "PE", "QU", "SK")
     }
 

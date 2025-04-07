@@ -6,9 +6,9 @@ import com.example.warehouseapp.data.models.User
 import com.example.warehouseapp.data.repositories.UserRepository
 import kotlinx.coroutines.flow.Flow
 
-class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
+open class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
 
-    fun getUser(userName: String, password: String): Flow<User?> {
+    open fun getUser(userName: String, password: String): Flow<User?> {
         return userRepository.getUserStream(userName, password)
     }
 
