@@ -58,7 +58,7 @@ class CreateGoodsScreenTest {
 
 
     @Test
-    fun editWarehouse_displaysExistingData_andCallsUpdate() {
+    fun editGoods_displaysExistingData_andCallsUpdate() {
         val goods = Goods(1, "Sample", "Desc", 5, "1.jpg", 1)
         val warehouse1 = Warehouse(1, "Warehouse A", "ON", "123 Street", 10)
 

@@ -77,9 +77,5 @@ class GoodsViewModelTest {
         val good = Goods(id = 7, name = "Mouse", description = "Wireless", quantity = 50, image = "", warehouseId = null)
         every { repository.getGoodsStream(7) } returns flowOf(good)
         coEvery { repository.deleteGoods(good) } just Runs
-//        val context = dummyContext()
-//        viewModel.deleteGoods(7, context)
-//        advanceUntilIdle()
-//        coVerify { repository.deleteGoods(good) }
     }
 }
